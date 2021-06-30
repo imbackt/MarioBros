@@ -1,7 +1,11 @@
 package com.github.imbackt.mariobros.screen
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.github.imbackt.mariobros.MarioBros
 import ktx.scene2d.actors
 import ktx.scene2d.label
@@ -19,6 +23,8 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
             fontColor = Color.WHITE
         }
     }
+
+    private val renderer = OrthogonalTiledMapRenderer(TmxMapLoader().load("1-1.tmx"))
 
     override fun show() {
         stage.actors {
@@ -40,10 +46,16 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
     }
 
     override fun render(delta: Float) {
+        gameViewport.apply()
+        renderer.setView(gameViewport.camera as OrthographicCamera)
+        renderer.render()
         stage.run {
             viewport.apply()
             act()
             draw()
+        }
+        if (Gdx.input.isTouched) {
+            gameViewport.camera.position.x += 100 * delta
         }
     }
 }
