@@ -1,19 +1,19 @@
 package com.github.imbackt.mariobros.screen
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.maps.MapObject
 import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.physics.box2d.BodyDef
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType.StaticBody
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.github.imbackt.mariobros.MarioBros
+import com.github.imbackt.mariobros.aprite.Mario
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.scene2d.actors
@@ -35,7 +35,8 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
 
     private val map: TiledMap = TmxMapLoader().load("1-1.tmx")
     private val renderer = OrthogonalTiledMapRenderer(map)
-    val box2DDebugRenderer = Box2DDebugRenderer()
+    private val box2DDebugRenderer = Box2DDebugRenderer()
+    private val mario = Mario(world)
 
     override fun show() {
         stage.actors {
@@ -57,9 +58,12 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
 
         for (i in 2..5) {
             map.layers[i].objects.getByType(RectangleMapObject::class.java).forEach {
-                val body = world.body {
+                world.body {
                     type = StaticBody
-                    position.set(it.rectangle.x + it.rectangle.width / 2, it.rectangle.y + it.rectangle.height / 2)
+                    position.set(
+                        (it.rectangle.x + it.rectangle.width / 2),
+                        (it.rectangle.y + it.rectangle.height / 2)
+                    )
                     box(it.rectangle.width, it.rectangle.height)
                 }
             }
@@ -67,7 +71,9 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
     }
 
     override fun render(delta: Float) {
+        world.step(1 / 60f, 6, 2)
         gameViewport.apply()
+        gameViewport.camera.position.x = mario.body.position.x
         renderer.setView(gameViewport.camera as OrthographicCamera)
         renderer.render()
         stage.run {
@@ -76,8 +82,14 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
             draw()
         }
         box2DDebugRenderer.render(world, gameViewport.camera.combined)
-        if (Gdx.input.isTouched) {
-            gameViewport.camera.position.x += 100 * delta
+
+        when {
+            Gdx.input.isKeyJustPressed(Input.Keys.UP) ->
+                mario.body.applyLinearImpulse(Vector2(0f, 40f), mario.body.worldCenter, true)
+            Gdx.input.isKeyPressed(Input.Keys.RIGHT) ->
+                mario.body.applyLinearImpulse(Vector2(20f, 0f), mario.body.worldCenter, true)
+            Gdx.input.isKeyPressed(Input.Keys.LEFT) ->
+                mario.body.applyLinearImpulse(Vector2(-20f, 0f), mario.body.worldCenter, true)
         }
     }
 }
