@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType.StaticBody
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.github.imbackt.mariobros.MarioBros
+import com.github.imbackt.mariobros.PPM
 import com.github.imbackt.mariobros.aprite.Mario
 import ktx.box2d.body
 import ktx.box2d.box
@@ -34,7 +35,7 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
     }
 
     private val map: TiledMap = TmxMapLoader().load("1-1.tmx")
-    private val renderer = OrthogonalTiledMapRenderer(map)
+    private val renderer = OrthogonalTiledMapRenderer(map, 1f / PPM)
     private val box2DDebugRenderer = Box2DDebugRenderer()
     private val mario = Mario(world)
 
@@ -61,10 +62,10 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
                 world.body {
                     type = StaticBody
                     position.set(
-                        (it.rectangle.x + it.rectangle.width / 2),
-                        (it.rectangle.y + it.rectangle.height / 2)
+                        (it.rectangle.x / PPM + it.rectangle.width / 2 / PPM),
+                        (it.rectangle.y / PPM + it.rectangle.height / 2 / PPM)
                     )
-                    box(it.rectangle.width, it.rectangle.height)
+                    box(it.rectangle.width / PPM, it.rectangle.height / PPM)
                 }
             }
         }
@@ -85,11 +86,11 @@ class PlayScreen(game: MarioBros) : MarioScreen(game) {
 
         when {
             Gdx.input.isKeyJustPressed(Input.Keys.UP) ->
-                mario.body.applyLinearImpulse(Vector2(0f, 40f), mario.body.worldCenter, true)
-            Gdx.input.isKeyPressed(Input.Keys.RIGHT) ->
-                mario.body.applyLinearImpulse(Vector2(20f, 0f), mario.body.worldCenter, true)
-            Gdx.input.isKeyPressed(Input.Keys.LEFT) ->
-                mario.body.applyLinearImpulse(Vector2(-20f, 0f), mario.body.worldCenter, true)
+                mario.body.applyLinearImpulse(Vector2(0f, 4f), mario.body.worldCenter, true)
+            Gdx.input.isKeyPressed(Input.Keys.RIGHT) && mario.body.linearVelocity.x <= 2 ->
+                mario.body.applyLinearImpulse(Vector2(0.1f, 0f), mario.body.worldCenter, true)
+            Gdx.input.isKeyPressed(Input.Keys.RIGHT) && mario.body.linearVelocity.x >= 2 ->
+                mario.body.applyLinearImpulse(Vector2(-0.1f, 0f), mario.body.worldCenter, true)
         }
     }
 }

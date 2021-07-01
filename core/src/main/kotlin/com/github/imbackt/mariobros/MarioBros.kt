@@ -12,10 +12,11 @@ import ktx.box2d.earthGravity
 
 const val V_WIDTH = 400
 const val V_HEIGHT = 224
+const val PPM = 100f
 
 class MarioBros : KtxGame<MarioScreen>() {
-    val gameViewport = FitViewport(V_WIDTH.toFloat(), V_HEIGHT.toFloat())
-    val hudViewport = FitViewport(V_WIDTH.toFloat(), V_HEIGHT.toFloat())
+    val gameViewport = FitViewport(V_WIDTH.toFloat() / PPM, V_HEIGHT.toFloat() / PPM)
+    val hudViewport = FitViewport(V_WIDTH.toFloat() / PPM, V_HEIGHT.toFloat() / PPM)
     val batch: Batch by lazy { SpriteBatch() }
     val stage: Stage by lazy { Stage(hudViewport) }
     val world = createWorld(earthGravity)
