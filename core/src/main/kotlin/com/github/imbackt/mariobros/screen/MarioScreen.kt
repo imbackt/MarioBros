@@ -14,9 +14,4 @@ abstract class MarioScreen(
     val hudViewport: Viewport = game.hudViewport,
     val stage: Stage = game.stage,
     val world: World = game.world
-) : KtxScreen {
-    override fun resize(width: Int, height: Int) {
-        gameViewport.update(width, height, true)
-        hudViewport.update(width, height, true)
-    }
-}
+) : KtxScreen
